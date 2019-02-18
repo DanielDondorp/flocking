@@ -5,3 +5,7 @@ A simple implementation of Craig Reynolds flocking boids in python, using numpy 
 
 
 https://en.wikipedia.org/wiki/Boids
+
+dependencies: numpy, pygame.
+
+Run flocking.py to see the simulation.
