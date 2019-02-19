@@ -8,6 +8,7 @@ Created on Mon Feb 18 09:28:39 2019
 
 import pygame
 from boid import Boid
+#from boid import Pboid
 
 pygame.init()
 
@@ -23,6 +24,7 @@ class Simulation:
         self.running = True
         
         self.boids = [Boid() for x in range(100)]
+#        self.pboids = [Pboid() for x in range(20)]
         
     def run(self):
         
@@ -35,8 +37,12 @@ class Simulation:
                 pygame.draw.circle(self.display, (255,255,255), (int(boid.position[0]), int(boid.position[1])), int(2))
                 boid.update()
                 boid.flock(self.boids)
-
-            
+                
+#            for pboid in self.pboids:
+#                pygame.draw.circle(self.display, (255,0,127), (int(pboid.position[0]), int(pboid.position[1])), int(5))
+#                pboid.update()
+#                pboid.flock(self.pboids)
+#            
             #Make closing out possible
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:

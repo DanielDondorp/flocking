@@ -28,22 +28,24 @@ class Boid:
         
         self.position = np.hstack([np.random.randint(0,self.display_width), np.random.randint(0, self.display_height)])        
         self.max_force = 0.3
-        self.max_speed = 5
-        self.perception = 50
+        self.max_speed = 4
+        self.perception = 30
         self.velocity = np.random.uniform(-2,2,2)
         self.acceleration = np.zeros(2)
         
         
     def update(self):
-          
+        
+        self.velocity += self.acceleration
         self.position = self.position + self.velocity
         self.velocity = self.velocity + self.acceleration
         self.velocity = limit_mag(self.velocity, self.max_speed)
-        
+        self.edges()
+        self.acceleration *= 0
     
     def flock(self, boids):    
         
-       
+        
         neigbours = []
         for boid in boids:
             if boid != self and np.linalg.norm(boid.position - self.position) < self.perception:
@@ -56,13 +58,12 @@ class Boid:
         
         self.acceleration += alignment
         self.acceleration += cohesion
-        self.acceleration += separation        
+        self.acceleration += separation
         
-        self.velocity += self.acceleration
-        self.velocity = limit_mag(self.velocity, self.max_speed)
-        self.position = self.position + self.velocity
-        self.edges()
-        self.acceleration *= 0
+        self.acceleration = limit_mag(self.acceleration, self.max_force)        
+        
+
+        
         
     
     def align(self, neighbours):
@@ -115,3 +116,11 @@ class Boid:
                 self.position[i] = p
             elif self.position[i] > p:
                 self.position[i] = 0
+
+#class Pboid(Boid):
+#    def __init__(self):
+#        Boid.__init__(self)
+#        self.perception = 50
+#        self.max_force = 0.8
+#        self.max_speed = 5
+        
