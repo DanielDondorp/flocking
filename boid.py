@@ -21,18 +21,19 @@ def limit_mag(vector, max_mag):
         return(vector)
 
 class Boid:
-    def __init__(self, display_width = 800, display_height = 600):
+    def __init__(self, display_width = 400, display_height = 300):
         
         self.display_width = display_width
         self.display_height = display_height
         
         self.position = np.hstack([np.random.randint(0,self.display_width), np.random.randint(0, self.display_height)])        
-        self.max_force = 0.3
+        self.max_force = 0.4
         self.max_speed = 4
         self.perception = 30
+        self.predator_perception = 25
         self.velocity = np.random.uniform(-2,2,2)
         self.acceleration = np.zeros(2)
-        
+        self.alive = True
         
     def update(self):
         
@@ -43,8 +44,7 @@ class Boid:
         self.edges()
         self.acceleration *= 0
     
-    def flock(self, boids):    
-        
+    def flock(self, boids, pboids):    
         
         neigbours = []
         for boid in boids:
@@ -54,11 +54,14 @@ class Boid:
         
         alignment = self.align(neigbours)
         cohesion = self.cohesion(neigbours)
+        cohesion *= 1.3
         separation = self.separation(neigbours)
+        fleeing = self.run_away(pboids)
         
         self.acceleration += alignment
         self.acceleration += cohesion
         self.acceleration += separation
+        self.acceleration += fleeing
         
         self.acceleration = limit_mag(self.acceleration, self.max_force)        
         
@@ -108,6 +111,17 @@ class Boid:
             steering -= self.velocity
             steering = limit_mag(steering, self.max_force)
         return(steering)
+    
+    def run_away(self, pboids):
+        p_close = []
+        for boid in pboids:
+            if boid != self and np.linalg.norm(boid.position - self.position) < self.predator_perception:
+                p_close.append(boid)
+        steering = self.separation(p_close)
+        steering = steering * 1.5
+        return(steering)
+    def die(self):
+        print("I ded.")
         
         
     def edges(self):
@@ -117,10 +131,45 @@ class Boid:
             elif self.position[i] > p:
                 self.position[i] = 0
 
-#class Pboid(Boid):
-#    def __init__(self):
-#        Boid.__init__(self)
-#        self.perception = 50
-#        self.max_force = 0.8
-#        self.max_speed = 5
+
+class Pboid(Boid):
+    def __init__(self):
+        Boid.__init__(self)
+        self.perception = 50
+        self.max_force = 0.2
+        self.max_speed = 4
+    
+    def flock(self, boids, pboids):    
+        neigbours = []
+        for boid in boids:
+            if boid != self and np.linalg.norm(boid.position - self.position) < self.perception:
+                neigbours.append(boid)
+                
+        alignment = self.align(neigbours)
+        cohesion = self.cohesion(neigbours)
+#        cohesion *= 1.3
+#        separation = self.separation(neigbours)
+#        fleeing = self.run_away(pboids)        
+        self.acceleration += alignment
+        self.acceleration += cohesion
+#        self.acceleration += separation
+#        self.acceleration += fleeing
         
+        self.acceleration = limit_mag(self.acceleration, self.max_force)   
+        
+    def cohesion(self, neighbours):
+        steering = np.zeros(2)
+        #find closest boid
+        if len(neighbours) > 0:
+            dists = [np.linalg.norm(boid.position - self.position) for boid in neighbours]
+
+            closest = neighbours[np.argmin(dists)]
+            if np.min(dists) < 3:
+                closest.alive = False
+                closest.die()
+            steering = closest.position
+            steering = steering - self.position
+            steering = set_mag(steering, self.max_speed)
+            steering -= self.velocity
+            steering = limit_mag(steering, self.max_force)
+        return(steering)
