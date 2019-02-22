@@ -7,6 +7,7 @@ Created on Mon Feb 18 09:28:39 2019
 
 
 import pygame
+import sys
 from boid import Boid
 from boid import Pboid
 
@@ -23,8 +24,8 @@ class Simulation:
         self.clock = pygame.time.Clock()
         self.running = True
         
-        self.boids = [Boid() for x in range(50)]
-        self.pboids = [Pboid() for x in range(3)]
+        self.boids = [Boid(display_width=self.display_width, display_height=self.display_height) for x in range(100)]
+        self.pboids = [Pboid(display_width=self.display_width, display_height=self.display_height) for x in range(3)]
         
     def run(self):
         
@@ -43,7 +44,7 @@ class Simulation:
                         boid.update()
                         boid.flock(self.boids, self.pboids)
                     except Exception as e:
-                        print(boid.position, boids.velocity, boid.acceleration, e)
+                        print(boid.position, boid.velocity, boid.acceleration, e)
                 
                 
                 
@@ -58,8 +59,9 @@ class Simulation:
                     self.running = False
             
             pygame.display.update()
-            self.clock.tick(60)
-        
+            self.clock.tick(15)
+            
+            sys.stdout.write("\r fps: "+str(self.clock.get_fps()))
         #when self.running set to False.
         pygame.quit()
     

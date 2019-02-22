@@ -27,10 +27,11 @@ class Boid:
         self.display_height = display_height
         
         self.position = np.hstack([np.random.randint(0,self.display_width), np.random.randint(0, self.display_height)])        
-        self.max_force = 0.4
+        self.max_force = 0.5
         self.max_speed = 4
-        self.perception = 30
-        self.predator_perception = 25
+        self.min_speed = 0.1
+        self.perception = 20
+        self.predator_perception = 15
         self.velocity = np.random.uniform(-2,2,2)
         self.acceleration = np.zeros(2)
         self.alive = True
@@ -54,7 +55,7 @@ class Boid:
         
         alignment = self.align(neigbours)
         cohesion = self.cohesion(neigbours)
-        cohesion *= 1.3
+        cohesion *= 1.1
         separation = self.separation(neigbours)
         fleeing = self.run_away(pboids)
         
@@ -121,7 +122,7 @@ class Boid:
         steering = steering * 1.5
         return(steering)
     def die(self):
-        print("I ded.")
+        pass
         
         
     def edges(self):
@@ -133,11 +134,11 @@ class Boid:
 
 
 class Pboid(Boid):
-    def __init__(self):
-        Boid.__init__(self)
-        self.perception = 50
-        self.max_force = 0.2
-        self.max_speed = 4
+    def __init__(self, **kw):
+        Boid.__init__(self, **kw)
+        self.perception = 10
+        self.max_force = 1
+        self.max_speed = 3.8
     
     def flock(self, boids, pboids):    
         neigbours = []
@@ -152,6 +153,7 @@ class Pboid(Boid):
 #        fleeing = self.run_away(pboids)        
         self.acceleration += alignment
         self.acceleration += cohesion
+        self.acceleration += -(set_mag(self.velocity, np.linalg.norm(self.velocity)/100))
 #        self.acceleration += separation
 #        self.acceleration += fleeing
         
