@@ -8,16 +8,18 @@ Created on Mon Feb 18 09:28:39 2019
 
 import pygame
 import sys
+import numpy as np
 from boid import Boid
 from boid import Pboid
+
 
 pygame.init()
 
 
 class Simulation:
     def __init__(self):
-        self.display_width = 400
-        self.display_height = 300
+        self.display_width = 800
+        self.display_height = 600
         
         self.display = pygame.display.set_mode((self.display_width, self.display_height))
         pygame.display.set_caption("Simulation")
@@ -25,7 +27,7 @@ class Simulation:
         self.running = True
         
         self.boids = [Boid(display_width=self.display_width, display_height=self.display_height) for x in range(100)]
-        self.pboids = [Pboid(display_width=self.display_width, display_height=self.display_height) for x in range(3)]
+        self.pboids = [Pboid(display_width=self.display_width, display_height=self.display_height) for x in range(4)]
         
     def run(self):
         
@@ -44,14 +46,14 @@ class Simulation:
                         boid.update()
                         boid.flock(self.boids, self.pboids)
                     except Exception as e:
-                        print(boid.position, boid.velocity, boid.acceleration, e)
+                        pass
                 
                 
                 
             for pboid in self.pboids:
                 pygame.draw.circle(self.display, (255,0,127), (int(pboid.position[0]), int(pboid.position[1])), int(5))
                 pboid.update()
-                pboid.flock(self.boids,self.pboids)
+                pboid.predate(self.boids,self.pboids)
 #            
             #Make closing out possible
             for event in pygame.event.get():
@@ -61,7 +63,7 @@ class Simulation:
             pygame.display.update()
             self.clock.tick(15)
             
-            sys.stdout.write("\r fps: "+str(self.clock.get_fps()))
+            sys.stdout.write("\r fps: "+str(np.round(self.clock.get_fps()))+" Boids left: "+str(len(self.boids)))
         #when self.running set to False.
         pygame.quit()
     
