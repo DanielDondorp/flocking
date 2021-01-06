@@ -1,6 +1,8 @@
 # flocking
 simulation of flocking boids in numpy and pygame
 
+![gif of simulation](flocking.gif)
+
 A simple implementation of Craig Reynolds flocking boids in python, with the addition of predatory boids and evasion behaviour. 
 Evasion is implemented by altering the steering rule. 
 
